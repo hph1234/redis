@@ -3069,7 +3069,7 @@ int listenToPort(int port, socketFds *sfd) {
         bindaddr_count = 2;
         bindaddr = default_bindaddr;
     }
-
+    //为每一个bind参数绑定的地址创建一个socket并监听
     for (j = 0; j < bindaddr_count; j++) {
         char* addr = bindaddr[j];
         int optional = *addr == '-';
@@ -3213,6 +3213,7 @@ void initServer(void) {
     adjustOpenFilesLimit();
     const char *clk_msg = monotonicInit();
     serverLog(LL_NOTICE, "monotonic clock: %s", clk_msg);
+    //创建事件处理器
     server.el = aeCreateEventLoop(server.maxclients+CONFIG_FDSET_INCR);
     if (server.el == NULL) {
         serverLog(LL_WARNING,
@@ -3220,6 +3221,7 @@ void initServer(void) {
             strerror(errno));
         exit(1);
     }
+    //初始化DB
     server.db = zmalloc(sizeof(redisDb)*server.dbnum);
 
     /* Open the TCP listening socket for the user commands. */
@@ -3254,7 +3256,7 @@ void initServer(void) {
         serverLog(LL_WARNING, "Configured to not listen anywhere, exiting.");
         exit(1);
     }
-
+    //初始化多DB
     /* Create the Redis databases, and initialize other internal state. */
     for (j = 0; j < server.dbnum; j++) {
         server.db[j].dict = dictCreate(&dbDictType,NULL);
